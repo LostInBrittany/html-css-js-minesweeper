@@ -1,0 +1,481 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+  <style>
+    body {
+      font-size: 16pt;
+    }
+    .container {
+      display: flex;
+      flex-flow: column;
+      gap: 1rem;
+      padding: 1rem;
+      height: 100%;
+    }
+    .vertical {
+      display: flex;
+      flex-flow: column;
+      height: 100%;
+    }
+    .space_around {
+      justify-content: space-around;
+    }
+    #new_game {
+      display: flex;
+      flex-flow: row;
+      align-items: center;
+      gap: 4em;
+      height: 4em;
+    }
+    #new_game select {
+      font-size: 1rem;
+      height: 2rem;
+      border-top:solid 4px #eee;
+      border-left:solid 4px #eee;
+      border-bottom: solid 4px #808080;
+      border-right: solid 4px #808080;
+    }
+    #game_start {
+      font-size: 1rem;
+      width: 8em;
+      height: 3em;
+      border: none;
+      background-color: lightgray;
+      border-top:solid 4px #eee;
+      border-left:solid 4px #eee;
+      border-bottom: solid 4px #808080;
+      border-right: solid 4px #808080;
+    }
+    #board {
+      display: flex;
+      flex-flow: column;
+      gap: 0.1rem;
+    }
+    .row {
+      display: flex;
+      flex-flow: row;
+      gap: 0.1rem;
+    }
+    .piece {
+      width: 1.5rem;
+      height: 1.5rem;
+      background-color: lightgray;
+      background-size: cover;
+    }
+    .mine {
+      background-image: url(./img/mine.png);
+    }
+    .around-1 {
+      background-image: url(./img/around_1.png);
+    }
+    .around-2 {
+      background-image: url(./img/around_2.png);
+    }
+    .around-3 {
+      background-image: url(./img/around_3.png);
+    }
+    .around-4 {
+      background-image: url(./img/around_4.png);
+    }
+    .around-5 {
+      background-image: url(./img/around_5.png);
+    }
+    .around-6 {
+      background-image: url(./img/around_6.png);
+    }
+    .around-7 {
+      background-image: url(./img/around_7.png);
+    }
+    .around-8 {
+      background-image: url(./img/around_8.png);
+    }
+    .flag.hidden {
+      background-image: url(./img/flag.png);   
+    }
+    .hidden {
+      background-image: url(./img/hidden.png);    
+    }
+    #footer {
+      display:flex;
+      flex-flow: row;
+      gap: 2rem;
+      margin-top: 1rem;
+    }
+    #timerLabel {
+      display: flex;
+      flex-flow: column;
+    }
+    #timer, #remaining {
+      padding: 0.5rem;
+      display: inline-flex;
+      flex-flow: row nowrap;
+      background-color: lightgray;
+      border-bottom:solid 4px #eee;
+      border-right:solid 4px #eee;
+      border-top: solid 4px #808080;
+      border-left: solid 4px #808080;
+    }
+    #minutes, #seconds {
+      display: flex;
+      flex-flow: row;
+    }
+    .digit {
+      background-image: url(./img/digit_empty.png);
+      background-size: cover;
+      width: 2rem;
+      height:3rem;    
+    }
+    .digit-colon {
+      background-image: url(./img/digit_colon-0.png);
+      background-size: cover;
+      width: 1rem;
+      height:3rem;    
+    }
+    .digit-colon.odd {
+      background-image: url(./img/digit_colon-1.png);
+    }
+    .digit-0 {
+      background-image: url(./img/digit_0.png);
+    }
+    .digit-1 {
+      background-image: url(./img/digit_1.png);
+    }
+    .digit-2 {
+      background-image: url(./img/digit_2.png);
+    }
+    .digit-3 {
+      background-image: url(./img/digit_3.png);
+    }
+    .digit-4 {
+      background-image: url(./img/digit_4.png);
+    }
+    .digit-5 {
+      background-image: url(./img/digit_5.png);
+    }
+    .digit-6 {
+      background-image: url(./img/digit_6.png);
+    }
+    .digit-7 {
+      background-image: url(./img/digit_7.png);
+    }
+    .digit-8 {
+      background-image: url(./img/digit_8.png);
+    }
+    .digit-9 {
+      background-image: url(./img/digit_9.png);
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <div id="new_game">
+      <div class="vertical space_around">
+        <div>Select board size</div>
+        <select id="board_selection">
+          <option value="beginner">Beginner</option>
+          <option value="intermediate">Intermediate</option>
+          <option value="advanced">Advanced</option>
+        </select>
+      </div>
+      <button id="game_start">Start game!</button>
+      
+    </div>
+
+    <div id="board"></div>
+  </div>
+  <script>
+    const boardSelection = document.querySelector('#board_selection');
+    const gameStart = document.querySelector('#game_start');
+    let sizeX;
+    let sizeY;
+    let numMines;
+    let gameFinished;
+    let gameTime = 0;
+    let remainingToReveal;
+
+    gameStart.addEventListener('click', (evt) => {
+      chooseBoardMode(boardSelection.value);
+    });  
+
+
+    function chooseBoardMode(mode) {
+      switch (mode) {
+        case 'beginner': 
+          console.log('I create a Beginner board');
+          sizeX = 9;
+          sizeY = 9;
+          numMines = 8;
+          break;
+        case 'intermediate':
+          console.log('I create a Intermediate board');
+          sizeX = 16;
+          sizeY = 16;
+          numMines = 40;
+          break;
+        case 'advanced':
+          console.log('I create an Advanced board');
+          sizeX = 30;
+          sizeY = 16;
+          numMines = 99;
+          break;
+        default: 
+          return;  
+      }
+      remainingToReveal = sizeX * sizeY - numMines;
+
+      generateBoard();
+    }
+
+    function generateTimer() {
+
+      const timerBox = document.createElement('div');
+      timerBox.id = 'timerBox';
+
+      const timerLabel = document.createElement('div');
+      timerLabel.id = 'timerLabel';
+      timerLabel.innerHTML = 'Time';
+      timerBox.appendChild(timerLabel);
+
+      const timer = document.createElement('div');
+      timer.id = 'timer';
+
+      const minutes = document.createElement('div');
+      minutes.id = "minutes";
+      for (let i=0; i<2; i++) {
+        const digit =  document.createElement('div');
+        digit.className = "digit";
+        digit.classList.add("digit-0");
+        minutes.appendChild(digit);
+      }
+      timer.appendChild(minutes);
+
+      const colon =  document.createElement('div');
+      colon.id = "colon";
+      colon.className = "digit-colon";
+      timer.appendChild(colon);
+
+      const seconds = document.createElement('div');
+      seconds.id = "seconds";
+      for (let i=0; i<2; i++) {
+        const digit =  document.createElement('div');
+        digit.className = "digit";
+        digit.classList.add("digit-0");
+        seconds.appendChild(digit);
+      }
+      timer.appendChild(seconds);
+      timerBox.appendChild(timer);
+
+      document.querySelector('#footer').appendChild(timerBox);
+      setTimeout(countTime,500);
+    }
+
+    function generateRemaining() {
+      const remainingBox = document.createElement('div');
+      remainingBox.id = "remainingBox";
+
+      const remainingLabel = document.createElement('div');
+      remainingLabel.id = "remainingLabel";
+      remainingLabel.innerHTML = "Remaining";
+      remainingBox.appendChild(remainingLabel);
+
+      const remaining = document.createElement('div');
+      remaining.id = "remaining";
+
+      const hundreds = document.createElement('div');
+      hundreds.id = "hundreds";
+      hundreds.style.backgroundSize = "cover";
+      hundreds.className = "digit";
+      remaining.appendChild(hundreds);
+    
+      const tens = document.createElement('div');
+      tens.id = "tens";  
+      tens.style.backgroundSize = "cover";
+      tens.className = "digit";
+      remaining.appendChild(tens);
+
+      const units = document.createElement('div');
+      units.id = "units"; 
+      units.style.backgroundSize = "cover"; 
+      units.className = "digit";
+      remaining.appendChild(units);
+      remainingBox.appendChild(remaining);
+
+      document.querySelector('#footer').appendChild(remainingBox);
+      calculateRemaining();
+
+    }
+
+    function generateBoard() {
+      document.querySelector('#board').innerHTML = '';
+      for (let y=0; y<sizeY; y++) {
+        let row = document.createElement('div');
+        row.className = 'row';
+        document.querySelector('#board').appendChild(row);
+        for (let x=0; x<sizeX; x++) {
+          let elem = document.createElement('div');
+          elem.className = 'piece';
+          elem.classList.add('hidden');
+          elem.addEventListener('click', onBoardClick);
+          elem.addEventListener('contextmenu', onBoardRightClick);
+          elem.id = `piece-${x}-${y}`;
+          row.appendChild(elem);
+        }
+      }
+      // Place the mines
+      for (let i=0; i<numMines; i++) {
+        let placed = false;
+        while (!placed) {
+          let x = Math.floor(sizeX*Math.random());
+          let y = Math.floor(sizeY*Math.random());
+
+          if (!document.querySelector(`#piece-${x}-${y}`).classList.contains('mine')) {
+            document.querySelector(`#piece-${x}-${y}`).classList.add('mine');
+            placed = true;
+          }
+        }
+      }
+      // Calculate adjacent mines
+      for (let y=0; y<sizeY; y++) {
+        for (let x=0; x<sizeX; x++) {
+          if (!document.querySelector(`#piece-${x}-${y}`).classList.contains('mine')) {
+            let minesAround = getMinesAround(x,y, sizeX, sizeY);
+            document.querySelector(`#piece-${x}-${y}`).classList.add(`around-${minesAround}`);
+          }
+        }
+      }
+
+      let footer = document.createElement('div');
+      footer.id="footer";
+      document.querySelector('#board').appendChild(footer);
+
+      generateTimer();
+      generateRemaining();
+      // Start game
+      gameFinished = false;
+    }
+
+    function getMinesAround(x,y) {
+      let minesAround = 0;
+      for (let i=-1; i<=1; i++) {
+        for (let j=-1; j<=1; j++) {
+          if ((x+i >= 0) && (x+i < sizeX) && (y+j >= 0) && (y+j < sizeY) &&
+            document.querySelector(`#piece-${x+i}-${y+j}`).classList.contains('mine')) {
+            minesAround++;
+          }
+        }
+      }
+      return minesAround;
+    }
+
+    function reveal(x,y) {
+      if (document.querySelector(`#piece-${x}-${y}`).classList.contains('mine')) {
+        document.querySelector(`#piece-${x}-${y}`).classList.remove('hidden');
+        document.querySelector(`#piece-${x}-${y}`).style.backgroundColor = 'red';
+        showMines();
+        gameFinished = true;
+        return;
+      }
+      if (document.querySelector(`#piece-${x}-${y}`).classList.contains('around-0')) {
+        document.querySelector(`#piece-${x}-${y}`).classList.remove('hidden');
+        remainingToReveal--;
+        for (let i=-1; i<=1; i++) {
+          for (let j=-1; j<=1; j++) {  
+            if ((x+i >= 0) && (x+i < sizeX) && (y+j >= 0) && (y+j < sizeY) &&
+              document.querySelector(`#piece-${x+i}-${y+j}`).classList.contains("hidden")) {
+              reveal(x+i,y+j);
+            }
+          }
+        }
+        return;
+      }
+      document.querySelector(`#piece-${x}-${y}`).classList.remove('hidden');
+      remainingToReveal--;
+    }
+
+    function calculateRemaining() {
+      console.log(remainingToReveal);
+      const hundredsDigit = Math.floor(remainingToReveal/100);
+      const tensDigit = Math.floor((remainingToReveal-100*hundredsDigit)/10);
+      const unitsDigit = remainingToReveal-100*hundredsDigit-10*tensDigit;
+      document.querySelector(`#hundreds`).className = `digit digit-${hundredsDigit}`;
+      document.querySelector(`#tens`).className = `digit digit-${tensDigit}`;
+      document.querySelector(`#units`).className = `digit digit-${unitsDigit}`;
+      if (remainingToReveal == 0) {
+        gameFinished = true;
+      }
+    }
+
+    function showMines() {
+      for (let x=0; x<sizeX; x++) {
+        for (let y=0; y<sizeY; y++) {
+          if (document.querySelector(`#piece-${x}-${y}`).classList.contains('mine')) {
+            document.querySelector(`#piece-${x}-${y}`).classList.remove('hidden');
+          }
+        }
+      }
+    }
+
+    function onBoardClick(evt) {
+      if (gameFinished) {
+        return;
+      }
+      let id = evt.srcElement.id;
+      let parts = id.split('-');
+      let x = parseInt(parts[1],10);
+      let y = parseInt(parts[2],10);
+      if (document.querySelector(`#piece-${x}-${y}`).classList.contains('flag')) {
+        return;
+      }
+      reveal(x,y);
+      calculateRemaining();
+    }
+    function onBoardRightClick(evt) {
+      evt.preventDefault();
+      if (gameFinished) {
+        return;
+      }
+      let id = evt.srcElement.id;
+      let parts = id.split('-');
+      let x = parseInt(parts[1],10);
+      let y = parseInt(parts[2],10);
+      if (!document.querySelector(`#piece-${x}-${y}`).classList.contains('hidden')) {
+        return;
+      }
+      if (!document.querySelector(`#piece-${x}-${y}`).classList.contains('flag')) {
+        document.querySelector(`#piece-${x}-${y}`).classList.add('flag');
+      } else {
+        document.querySelector(`#piece-${x}-${y}`).classList.remove('flag');
+      }
+    }
+    function countTime() {
+      if (!gameFinished) {
+
+        gameTime += 0.5;
+        let timeInSeconds = Math.floor(gameTime);
+        let seconds = timeInSeconds%60;
+        let minutes = Math.floor(timeInSeconds/60);
+        let minutesUnits = minutes%10;
+        let minutesTens = Math.floor(minutes/10);
+        let secondsUnits = seconds%10;
+        let secondsTens = Math.floor(seconds/10);
+        document.querySelectorAll(`#minutes>div`)[0].className = `digit digit-${minutesTens}`;
+        document.querySelectorAll(`#minutes>div`)[1].className = `digit digit-${minutesUnits}`;
+        document.querySelectorAll(`#seconds>div`)[0].className = `digit digit-${secondsTens}`;
+        document.querySelectorAll(`#seconds>div`)[1].className = `digit digit-${secondsUnits}`;
+        if (gameTime %2 == 1) {
+          console.log('odd');
+          document.querySelector(`#colon`).className = `digit-colon odd`;
+        } else {
+          document.querySelector(`#colon`).className = `digit-colon`;
+        }
+
+        setTimeout(countTime,500);
+      }
+    }
+  </script>
+</body>
+</html>
